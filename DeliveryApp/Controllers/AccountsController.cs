@@ -17,14 +17,19 @@ namespace DeliveryApp.Controllers
         private readonly IConfiguration _configuration;
         private readonly AuthService _auth;
 
-        public AccountsController(ApplicationDbContext context, IConfiguration configuration, AuthService auth)
+        public AccountsController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
             _configuration = configuration;
             _auth = new AuthService(_configuration);
         }
+        //[HttpGet]
+        //public IActionResult Register(User user)
+        //{
+        //    return Ok();
+        //}
 
-        [HttpPost]
+        [HttpPost("[action]")]
         [AllowAnonymous]
         public async Task<IActionResult> Register(User user)
         {
@@ -39,14 +44,14 @@ namespace DeliveryApp.Controllers
                 Email = user.Email,
                 Name = user.Name,
                 Password = SecurePasswordHasherHelper.Hash(user.Password),
-                Role = "User"
+                Role = "Admin"
             };
             _context.Users.Add(userObj);
             await _context.SaveChangesAsync();
             return StatusCode(StatusCodes.Status201Created);
         }
 
-        [HttpPost]
+        [HttpPost("[action]")]
         [AllowAnonymous]
         public IActionResult Login(User model)
         {

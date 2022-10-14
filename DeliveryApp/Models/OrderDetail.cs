@@ -1,7 +1,10 @@
-﻿namespace DeliveryApp.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DeliveryApp.Models
 {
     public class OrderDetail
     {
+        [Key]
         public int Id { get; set; }
         public int ProductId { get; set; }
         public Product Product { get; set; }

@@ -90,9 +90,29 @@ namespace DeliveryApp.Controllers
         [HttpGet("[action]/{userId}")]
         public IActionResult OrdersByUser(int userId)
         {
+            //Get user orders
             var orders = _context.Orders.Where(x => x.UserId == userId).OrderByDescending(x => x.OrderDate);
             return Ok(orders);
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("[action]/{orderId}")]
+        public IActionResult MarkOrdersCompleted(int orderId, [FromBody] Order order)
+        {
+            //Find completed order
+            var orderCompleted = _context.Orders.Find(orderId);
+            if(orderCompleted == null)
+            {
+                return NotFound("Order Not Found");
+            }
+            else
+            {
+                orderCompleted.IsCompleted = order.IsCompleted;
+                _context.SaveChanges();
+                return Ok("Order Completed!");
+            }
+        }
+
 
     }
 }
