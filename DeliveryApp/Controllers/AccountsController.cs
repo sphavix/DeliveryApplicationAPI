@@ -34,11 +34,11 @@ namespace DeliveryApp.Controllers
         public async Task<IActionResult> Register(User user)
         {
             var emailAlreadyExist = _context.Users.SingleOrDefault(x => x.Email == user.Email);
-            if(emailAlreadyExist != null)
+            if(emailAlreadyExist != null) //Check if the user exist using the email address
             {
                 return BadRequest("This email address already exist, please use a different email.");
             }
-
+            //If the user does not exist, register new user.
             var userObj = new User
             {
                 Email = user.Email,
@@ -62,7 +62,7 @@ namespace DeliveryApp.Controllers
             }
 
             var password = user.Password;
-            if(!SecurePasswordHasherHelper.Verify(model.Password, password))
+            if(!SecurePasswordHasherHelper.Verify(model.Password, password)) //Verify user password before assign login claims.
             {
                 return Unauthorized();
             }
