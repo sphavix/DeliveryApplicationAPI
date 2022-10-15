@@ -42,7 +42,7 @@ namespace DeliveryApp.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] Cart cart)
         {
-            //
+            //Get user cart items
             var cartItem = _context.CartItems.FirstOrDefault(x => x.ProductId == cart.ProductId 
                             && x.CustomerId == cart.CustomerId);
 
