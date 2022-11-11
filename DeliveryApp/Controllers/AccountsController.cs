@@ -4,8 +4,10 @@ using DeliveryApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace DeliveryApp.Controllers
 {
@@ -86,6 +88,40 @@ namespace DeliveryApp.Controllers
                 creation_time = token.ValidFrom,
                 expiration_time = token.ValidTo
             });
+        }
+
+        [HttpPost("[action]")]
+        [AllowAnonymous]
+        public IActionResult Authenticate(User user)
+        {
+            if(user.Email == "johndoe@gmail.com" && user.Password == "P@$$w0rd1")
+            {
+                var issuer = _configuration["Tokens:Issuer"];
+                var audience = _configuration["Tokens:Audience"];
+                var key = Encoding.ASCII.GetBytes(_configuration["Tokens:Key"]);
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new[]
+                    {
+                        new Claim("Id", Guid.NewGuid().ToString()),
+                        new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                        new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    }),
+                    Expires = DateTime.UtcNow.AddMinutes(10),
+                    Issuer = issuer,
+                    Audience = audience,
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var jwtToken = tokenHandler.WriteToken(token);
+                var stringToken = tokenHandler.WriteToken(token);
+                return Ok(stringToken);
+            }
+            return Unauthorized();
         }
     }
 }
